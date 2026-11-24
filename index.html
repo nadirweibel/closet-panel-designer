@@ -8,10 +8,19 @@ p { line-height: 1.5; margin: 10px 0; }
 .toolbar, .pool, .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .toolbar { margin: 24px 0 12px; }
 .stats { color: #555; font-size: .9rem; }
-.pool { padding: 12px; border: 1px solid #ccc; min-height: 76px; }
+.pool { display: block; padding: 12px; border: 1px solid #ccc; min-height: 76px; }
 button, select { font: inherit; color: inherit; background: white; border: 1px solid #aaa; border-radius: 3px; min-height: 44px; padding: 9px 12px; }
 button { cursor: pointer; touch-action: manipulation; }
 button:focus-visible, select:focus-visible { outline: 3px solid #2159a1; outline-offset: 3px; }
+.panel-row { display:flex; flex-wrap:wrap; gap:10px; }
+.panel-row + .panel-row { margin-top:12px; }
+.room-view { margin:20px 0; }
+.room-view summary { cursor:pointer; padding:10px 0; }
+.room-view svg { display:block; width:100%; height:auto; }
+.doors { column-gap:12px; }
+.door:nth-child(2) { margin-right:16px; }
+.door:nth-child(3) { border-left:8px solid #ddd; padding-left:16px; }
+@media(max-width:650px) { .door:nth-child(2) { margin-right:0; } .door:nth-child(3) { border-left:0; padding-left:0; border-top:8px solid #ddd; padding-top:16px; } .door:nth-child(4) { border-top:8px solid #ddd; padding-top:16px; } }
 .tile { width: 78px; height: 44px; padding: 0; font-size: .875rem; user-select: none; cursor: grab; }
 .mirror { background: linear-gradient(130deg, #b8c6cd, #eef3f5 45%, #bac7ce); color: #283c47; }
 .white { background: #fff; color: #333; }
@@ -28,9 +37,114 @@ button:focus-visible, select:focus-visible { outline: 3px solid #2159a1; outline
 .hint { font-size: .875rem; color: #555; }
 #message { min-height: 24px; font-size: .9rem; line-height: 1.5; }
 #print-person { display: none; }
-@media (max-width: 650px) { body { padding: 20px 16px; } .doors { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 12px; } .slot { height: 80px; } .tile { width: 64px; } .stats { flex-basis: 100%; } }
-@media print { .toolbar, .pool, .actions, .hint, .instructions, #message, h2 { display: none !important; } #print-person { display: block; } body { max-width: none; padding: 0; } .doors { grid-template-columns: repeat(4,minmax(0,1fr)); } .door { break-inside: avoid; } .slot { height: 95px; print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
-</style></head><body><h1>Closet panel designer</h1><p id="print-person"></p><p>Two closets, four doors. Arrange <b>8 mirror and 8 white panels</b> for each person.</p><div class="toolbar"><label class="label" for="person">Design for</label><select id="person"><option>Emma</option><option>Noah</option></select><span id="stats" class="stats" aria-live="polite"></span></div><p class="instructions"><b>Tap a panel below, then a door slot.</b> You can also drag panels on a computer. Select an installed panel to move, swap, or remove it.</p><h2>Available panels</h2><div class="pool" id="pool"></div><p class="hint">Each door has four slots, read from top to bottom.</p><div class="doors" id="doors"></div><div id="message" aria-live="polite"></div><div class="actions"><button class="primary" id="download">Save design file</button><button id="print">Print / Save as PDF</button><button id="load">Open saved design</button><button id="reset">Clear this design</button><input id="file" type="file" accept=".json,application/json" hidden></div><p class="hint">Changes save on this device. Save a design file to reopen on another device, or print a layout for the installer. Inventory assumes eight panels of each type per person; check your delivered kits.</p><script>
+@media (max-width: 650px) { body { padding: 20px 16px; } .doors { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 12px; } .slot { height: 80px; } .panel-row { display:flex; flex-wrap:wrap; gap:10px; }
+.panel-row + .panel-row { margin-top:12px; }
+.room-view { margin:20px 0; }
+.room-view summary { cursor:pointer; padding:10px 0; }
+.room-view svg { display:block; width:100%; height:auto; }
+.doors { column-gap:12px; }
+.door:nth-child(2) { margin-right:16px; }
+.door:nth-child(3) { border-left:8px solid #ddd; padding-left:16px; }
+@media(max-width:650px) { .door:nth-child(2) { margin-right:0; } .door:nth-child(3) { border-left:0; padding-left:0; border-top:8px solid #ddd; padding-top:16px; } .door:nth-child(4) { border-top:8px solid #ddd; padding-top:16px; } }
+.tile { width: 64px; } .stats { flex-basis: 100%; } }
+@media print { .doors, .room-view summary { display:none!important; } .room-view { display:block!important; } .room-view > #room { display:block!important; } .toolbar, .pool, .actions, .hint, .instructions, #message, h2 { display: none !important; } #print-person { display: block; } body { max-width: none; padding: 0; } .doors { grid-template-columns: repeat(4,minmax(0,1fr)); } .door { break-inside: avoid; } .slot { height: 95px; print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+</style></head><body><h1>Closet panel designer</h1><p id="print-person"></p><p>Two closets, four doors. Arrange <b>8 mirror and 8 white panels</b> for each person.</p><div class="toolbar"><label class="label" for="person">Design for</label><select id="person"><option>Emma</option><option>Noah</option></select><span id="stats" class="stats" aria-live="polite"></span></div><p class="instructions"><b>Tap a panel below, then a door slot.</b> You can also drag panels on a computer. Select an installed panel to move, swap, or remove it.</p><h2>Available panels</h2><div class="pool" id="pool"></div><p class="hint">Each door has four slots, read from top to bottom.</p><div class="doors" id="doors"></div><details class="room-view" id="room-view"><summary>Room view</summary><div id="room"></div></details><div id="message" aria-live="polite"></div><div class="actions"><button class="primary" id="download">Save design file</button><button id="pdf">Download PDF</button><button id="email" class="primary">Done — email PDF</button><button id="print">Print / Save as PDF</button><button id="load">Open saved design</button><button id="reset">Clear this design</button><input id="file" type="file" accept=".json,application/json" hidden></div><p class="hint">When finished, email the PDF to nad@nadnet.ch. Changes save on this device. Save a design file to reopen on another device, or print a layout for the installer. Inventory assumes eight panels of each type per person; check your delivered kits.</p><script>
 const persons=['Emma','Noah'], initial=()=>Array(16).fill(null);let data={Emma:initial(),Noah:initial()},selected=null,person='Emma';const key='tenoner-designer-v1';try{const old=JSON.parse(localStorage.getItem(key));for(const p of persons)if(Array.isArray(old?.[p])&&old[p].length===16&&old[p].every(v=>v===null||v==='mirror'||v==='white')&&['mirror','white'].every(t=>old[p].filter(v=>v===t).length<=8))data[p]=old[p]}catch{};
-const $=id=>document.getElementById(id);function save(){try{localStorage.setItem(key,JSON.stringify(data));return true}catch{return false}}function counts(){return {mirror:data[person].filter(x=>x==='mirror').length,white:data[person].filter(x=>x==='white').length}}function message(s){$('message').textContent=s}function setSlot(i,type){if(!Number.isInteger(i)||i<0||i>=16||![null,'mirror','white'].includes(type))return;let c=counts();if(type&&data[person][i]!==type&&c[type]>=8){message('All 8 '+type+' panels are already placed. Remove or swap one first.');return}data[person][i]=type;selected=null;const saved=save();render();message(saved?'Design saved on this device.':'Changes are not saved on this device. Use Save design file to keep them.')}function chooseSlot(i){const a=data[person];if(selected?.kind==='pool'){setSlot(i,selected.type);return}if(selected?.kind==='slot'){const j=selected.index;if(i===j){selected=null;render();return}[a[i],a[j]]=[a[j],a[i]];selected=null;save();render();message('Panels swapped.');return}if(a[i]){selected={kind:'slot',index:i};render();message('Panel selected. Tap another slot to swap, or tap this slot again to deselect. Use “Remove selected” below to return it to the tray.')}else message('Select a panel from the tray first.')}function render(){let c=counts();$('print-person').textContent=person+' — closet panel layout';$('stats').textContent=`Placed: ${c.mirror}/8 mirror, ${c.white}/8 white · ${16-c.mirror-c.white} empty`;const pool=$('pool');pool.innerHTML='';for(const type of ['mirror','white']){for(let k=0;k<8-c[type];k++){const tile=document.createElement('button');tile.type='button';tile.className='tile '+type;tile.textContent=type==='mirror'?'MIRROR':'WHITE';tile.draggable=true;tile.tabIndex=0;tile.setAttribute('role','button');tile.onclick=()=>{selected={kind:'pool',type};render();message('Selected '+type+' panel. Tap an empty slot.')};tile.ondragstart=e=>e.dataTransfer.setData('text/plain',JSON.stringify({kind:'pool',type}));if(selected?.kind==='pool'&&selected.type===type)tile.classList.add('selected');tile.setAttribute('aria-pressed',String(selected?.kind==='pool'&&selected.type===type));pool.appendChild(tile)}}let remove=$('remove');if(remove)remove.remove();if(selected?.kind==='slot'){const b=document.createElement('button');b.id='remove';b.textContent='Remove selected panel';b.onclick=()=>setSlot(selected.index,null);pool.appendChild(b)}const doors=$('doors');doors.innerHTML='';for(let d=0;d<4;d++){let div=document.createElement('section');div.className='door';let title=document.createElement('h3');title.textContent=`Closet ${Math.floor(d/2)+1} — ${d%2===0?'Left':'Right'} door`;div.appendChild(title);const frame=document.createElement('div');frame.className='frame';div.appendChild(frame);for(let s=0;s<4;s++){let i=d*4+s,v=data[person][i];let slot=document.createElement('button');slot.type='button';slot.className='slot '+(v||'')+(v?' filled':'')+(selected?.kind==='slot'&&selected.index===i?' selected':'');slot.textContent=v?(v==='mirror'?'MIRROR':'WHITE'):`Slot ${s+1}`;slot.setAttribute('aria-label',title.textContent+', slot '+(s+1)+': '+(v||'empty'));slot.setAttribute('aria-pressed',String(selected?.kind==='slot'&&selected.index===i));slot.tabIndex=0;slot.setAttribute('role','button');slot.onclick=()=>chooseSlot(i);slot.ondragover=e=>e.preventDefault();slot.ondrop=e=>{e.preventDefault();try{const x=JSON.parse(e.dataTransfer.getData('text/plain'));if(x.kind==='pool')setSlot(i,x.type);else if(x.kind==='slot'&&Number.isInteger(x.index)&&x.index>=0&&x.index<16){[data[person][i],data[person][x.index]]=[data[person][x.index],data[person][i]];selected=null;save();render()}}catch{}};slot.draggable=!!v;slot.ondragstart=e=>e.dataTransfer.setData('text/plain',JSON.stringify({kind:'slot',index:i}));frame.appendChild(slot)}doors.appendChild(div)}}$('person').onchange=e=>{person=e.target.value;selected=null;render();message('')};$('download').onclick=()=>{const payload={format:'TENONER closet panel design',version:1,designs:data};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='TENONER_Emma_Noah_Designs.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);message('Saved a file containing both Emma and Noah designs.')};$('print').onclick=()=>{const c=counts();if(c.mirror+c.white!==16){if(!confirm('This design has empty slots. Print anyway?'))return}window.print()};$('load').onclick=()=>$('file').click();$('file').onchange=async e=>{if(!e.target.files.length)return;try{let obj=JSON.parse(await e.target.files[0].text()),incoming=obj.designs;if(!incoming||!persons.every(p=>Array.isArray(incoming[p])&&incoming[p].length===16&&incoming[p].every(v=>v===null||v==='mirror'||v==='white')&&['mirror','white'].every(t=>incoming[p].filter(v=>v===t).length<=8)))throw Error();data=incoming;selected=null;save();render();message('Saved designs loaded.')}catch{message('Could not load this design file.')}e.target.value=''};$('reset').onclick=()=>{if(confirm('Clear all 16 slots for '+person+'?')){data[person]=initial();selected=null;save();render();message('Cleared '+person+' design.')}};render();
+const $=id=>document.getElementById(id);function save(){try{localStorage.setItem(key,JSON.stringify(data));return true}catch{return false}}function counts(){return {mirror:data[person].filter(x=>x==='mirror').length,white:data[person].filter(x=>x==='white').length}}function message(s){$('message').textContent=s}function setSlot(i,type){if(!Number.isInteger(i)||i<0||i>=16||![null,'mirror','white'].includes(type))return;let c=counts();if(type&&data[person][i]!==type&&c[type]>=8){message('All 8 '+type+' panels are already placed. Remove or swap one first.');return}data[person][i]=type;selected=null;const saved=save();render();message(saved?'Design saved on this device.':'Changes are not saved on this device. Use Save design file to keep them.')}function chooseSlot(i){const a=data[person];if(selected?.kind==='pool'){setSlot(i,selected.type);return}if(selected?.kind==='slot'){const j=selected.index;if(i===j){selected=null;render();return}[a[i],a[j]]=[a[j],a[i]];selected=null;save();render();message('Panels swapped.');return}if(a[i]){selected={kind:'slot',index:i};render();message('Panel selected. Tap another slot to swap, or tap this slot again to deselect. Use “Remove selected” below to return it to the tray.')}else message('Select a panel from the tray first.')}function render(){let c=counts();$('print-person').textContent=person+' — closet panel layout';$('stats').textContent=`Placed: ${c.mirror}/8 mirror, ${c.white}/8 white · ${16-c.mirror-c.white} empty`;const pool=$('pool');pool.innerHTML='';for(const type of ['mirror','white']){const row=document.createElement('div');row.className='panel-row';row.setAttribute('aria-label',type+' panels');pool.appendChild(row);for(let k=0;k<8-c[type];k++){const tile=document.createElement('button');tile.type='button';tile.className='tile '+type;tile.textContent=type==='mirror'?'MIRROR':'WHITE';tile.draggable=true;tile.tabIndex=0;tile.setAttribute('role','button');tile.onclick=()=>{selected={kind:'pool',type};render();message('Selected '+type+' panel. Tap an empty slot.')};tile.ondragstart=e=>e.dataTransfer.setData('text/plain',JSON.stringify({kind:'pool',type}));if(selected?.kind==='pool'&&selected.type===type)tile.classList.add('selected');tile.setAttribute('aria-pressed',String(selected?.kind==='pool'&&selected.type===type));row.appendChild(tile)}}let remove=$('remove');if(remove)remove.remove();if(selected?.kind==='slot'){const b=document.createElement('button');b.id='remove';b.textContent='Remove selected panel';b.onclick=()=>setSlot(selected.index,null);pool.appendChild(b)}const doors=$('doors');doors.innerHTML='';for(let d=0;d<4;d++){let div=document.createElement('section');div.className='door';let title=document.createElement('h3');title.textContent=`Closet ${Math.floor(d/2)+1} — ${d%2===0?'Left':'Right'} door`;div.appendChild(title);const frame=document.createElement('div');frame.className='frame';div.appendChild(frame);for(let s=0;s<4;s++){let i=d*4+s,v=data[person][i];let slot=document.createElement('button');slot.type='button';slot.className='slot '+(v||'')+(v?' filled':'')+(selected?.kind==='slot'&&selected.index===i?' selected':'');slot.textContent=v?(v==='mirror'?'MIRROR':'WHITE'):`Slot ${s+1}`;slot.setAttribute('aria-label',title.textContent+', slot '+(s+1)+': '+(v||'empty'));slot.setAttribute('aria-pressed',String(selected?.kind==='slot'&&selected.index===i));slot.tabIndex=0;slot.setAttribute('role','button');slot.onclick=()=>chooseSlot(i);slot.ondragover=e=>e.preventDefault();slot.ondrop=e=>{e.preventDefault();try{const x=JSON.parse(e.dataTransfer.getData('text/plain'));if(x.kind==='pool')setSlot(i,x.type);else if(x.kind==='slot'&&Number.isInteger(x.index)&&x.index>=0&&x.index<16){[data[person][i],data[person][x.index]]=[data[person][x.index],data[person][i]];selected=null;save();render()}}catch{}};slot.draggable=!!v;slot.ondragstart=e=>e.dataTransfer.setData('text/plain',JSON.stringify({kind:'slot',index:i}));frame.appendChild(slot)}doors.appendChild(div)}renderRoom();}$('person').onchange=e=>{person=e.target.value;selected=null;render();message('')};$('download').onclick=()=>{const payload={format:'TENONER closet panel design',version:1,designs:data};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='TENONER_Emma_Noah_Designs.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);message('Saved a file containing both Emma and Noah designs.')};$('print').onclick=()=>{const c=counts();if(c.mirror+c.white!==16){if(!confirm('This design has empty slots. Print anyway?'))return}$('room-view').open=true;window.print()};$('load').onclick=()=>$('file').click();$('file').onchange=async e=>{if(!e.target.files.length)return;try{let obj=JSON.parse(await e.target.files[0].text()),incoming=obj.designs;if(!incoming||!persons.every(p=>Array.isArray(incoming[p])&&incoming[p].length===16&&incoming[p].every(v=>v===null||v==='mirror'||v==='white')&&['mirror','white'].every(t=>incoming[p].filter(v=>v===t).length<=8)))throw Error();data=incoming;selected=null;save();render();message('Saved designs loaded.')}catch{message('Could not load this design file.')}e.target.value=''};$('reset').onclick=()=>{if(confirm('Clear all 16 slots for '+person+'?')){data[person]=initial();selected=null;save();render();message('Cleared '+person+' design.')}};
+// One drawing model keeps the room view and exported PDF consistent.
+function roomShapes(who) {
+  const shapes=[];
+  const rect=(x,y,w,h,fill='#fff',stroke='#555')=>shapes.push({kind:'rect',x,y,w,h,fill,stroke});
+  const line=(x1,y1,x2,y2)=>shapes.push({kind:'line',x1,y1,x2,y2});
+  const poly=(points,fill)=>shapes.push({kind:'poly',points,fill});
+  const text=(x,y,value,size=16)=>shapes.push({kind:'text',x,y,value,size});
+  text(35,32,who+' - closet panel layout',24);
+  text(35,58,'View facing the closets. Room features are schematic, not to scale.',14);
+  // The two return walls are perpendicular to the closet wall.
+  poly([[35,100],[140,140],[140,480],[35,530]],'#f0f0f0');
+  poly([[860,140],[965,100],[965,530],[860,480]],'#f0f0f0');
+  rect(140,140,720,340,'#f9f9f9');
+  const drawSide=(side,feature)=>{
+    const left=side==='left';
+    if(feature==='Door'){
+      const p=left?[[59,180],[119,200],[119,490],[59,518]]:[[881,200],[941,180],[941,518],[881,490]];
+      poly(p,'#fff');
+      rect(left?103:890,340,5,5,'#555');
+    }else{
+      const p=left?[[52,230],[123,245],[123,370],[52,388]]:[[877,245],[948,230],[948,388],[877,370]];
+      poly(p,'#dbe7ec');
+      line(left?88:912,238,left?88:912,379);
+      line(left?52:877,309,left?123:948,309);
+    }
+    text(left?35:878,90,feature,17);
+  };
+  drawSide('left',who==='Emma'?'Door':'Window');
+  drawSide('right',who==='Emma'?'Window':'Door');
+  text(220,120,'Closet 1',18);text(620,120,'Closet 2',18);
+  rect(473,140,54,340,'#ddd','#aaa');text(480,505,'Wall',14);
+  for(let d=0;d<4;d++){
+    const x=[151,307,537,693][d];
+    rect(x,150,146,320,'#ddd','#777');
+    for(let row=0;row<4;row++){
+      const value=data[who][d*4+row], y=156+row*78;
+      rect(x+5,y,136,74,value==='mirror'?'#c9d8df':value==='white'?'#fff':'#f4f4f4','#aaa');
+      text(x+40,y+43,value==='mirror'?'Mirror':value==='white'?'White':'Empty',16);
+      if(value==='mirror')line(x+12,y+62,x+34,y+12);
+    }
+    text(x+45,552,d%2?'Right':'Left',14);
+  }
+  text(35,590,'Panels are listed from top to bottom. Each person has 8 mirror and 8 white panels.',14);
+  return shapes;
+}
+function renderRoom(){
+  const svgNS='http://www.w3.org/2000/svg', svg=document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox','0 0 1000 615');svg.setAttribute('role','img');
+  svg.setAttribute('aria-label',person+' room: '+(person==='Emma'?'door on left, window on right':'window on left, door on right')+', wall between closets');
+  for(const shape of roomShapes(person)){
+    const e=document.createElementNS(svgNS,shape.kind==='poly'?'polygon':shape.kind);
+    if(shape.kind==='text'){e.setAttribute('x',shape.x);e.setAttribute('y',shape.y);e.setAttribute('font-size',shape.size);e.setAttribute('font-family','Arial, sans-serif');e.textContent=shape.value;}
+    else if(shape.kind==='rect'){for(const [k,v] of Object.entries({x:shape.x,y:shape.y,width:shape.w,height:shape.h,fill:shape.fill,stroke:shape.stroke}))e.setAttribute(k,v);}
+    else if(shape.kind==='poly'){e.setAttribute('points',shape.points.map(p=>p.join(',')).join(' '));e.setAttribute('fill',shape.fill);e.setAttribute('stroke','#777');}
+    else {for(const k of ['x1','y1','x2','y2'])e.setAttribute(k,shape[k]);e.setAttribute('stroke','#71818a');}
+    svg.appendChild(e);
+  }
+  $('room').replaceChildren(svg);
+}
+function pdfBlob(who){
+  const commands=['q','0.75 0 0 0.75 21 60 cm'];
+  const rgb=hex=>{const h=hex.slice(1);const s=h.length===3?h.split('').map(c=>c+c).join(''):h;return [0,2,4].map(i=>(parseInt(s.slice(i,i+2),16)/255).toFixed(3)).join(' ');};
+  const y=v=>615-v, esc=t=>t.replace(/([\\()])/g,'\\$1');
+  for(const s of roomShapes(who)){
+    commands.push('0.7 w');
+    if(s.kind==='text')commands.push(`0.12 0.12 0.12 rg BT /F1 ${s.size} Tf ${s.x} ${y(s.y)} Td (${esc(s.value)}) Tj ET`);
+    if(s.kind==='rect')commands.push(`${rgb(s.fill)} rg ${rgb(s.stroke)} RG ${s.x} ${y(s.y+s.h)} ${s.w} ${s.h} re B`);
+    if(s.kind==='line')commands.push(`0.45 0.5 0.54 RG ${s.x1} ${y(s.y1)} m ${s.x2} ${y(s.y2)} l S`);
+    if(s.kind==='poly')commands.push(`${rgb(s.fill)} rg 0.45 0.45 0.45 RG `+s.points.map((p,i)=>`${p[0]} ${y(p[1])} ${i?'l':'m'}`).join(' ')+' h B');
+  }
+  commands.push('Q');const stream=commands.join('\n');
+  const objects=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>','<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`];
+  let pdf='%PDF-1.4\n', offsets=[0];objects.forEach((o,i)=>{offsets.push(pdf.length);pdf+=`${i+1} 0 obj\n${o}\nendobj\n`;});
+  const start=pdf.length;pdf+=`xref\n0 6\n0000000000 65535 f \n`+offsets.slice(1).map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF\n`;
+  return new Blob([pdf],{type:'application/pdf'});
+}
+function downloadPDF(who){const url=URL.createObjectURL(pdfBlob(who)),a=document.createElement('a');a.href=url;a.download=who+'_closet_layout.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+$('pdf').onclick=()=>downloadPDF(person);
+const EMAIL_ENDPOINT = ''; // Set after the approved sender is deployed.
+if(!EMAIL_ENDPOINT){$('email').disabled=true;$('email').textContent='Email setup pending';}
+$('email').onclick=async()=>{
+  const who=person, c=counts();
+  if(c.mirror!==8||c.white!==8){message('Fill all 16 slots with 8 mirror and 8 white panels before emailing.');return;}
+  if(!EMAIL_ENDPOINT){message('Email setup is being completed. Download your PDF to keep a copy.');return;}
+  const b=$('email');b.disabled=true;b.textContent='Sending…';
+  try{
+    const bytes=new Uint8Array(await pdfBlob(who).arrayBuffer());
+    const pdf=btoa(Array.from(bytes,b=>String.fromCharCode(b)).join(''));
+    const response=await fetch(EMAIL_ENDPOINT,{method:'POST',body:JSON.stringify({person:who,panels:data[who].slice(),pdf}),headers:{'Content-Type':'text/plain;charset=utf-8'},signal:AbortSignal.timeout(45000)});
+    const result=await response.json();
+    if(!response.ok||result.success!==true)throw Error(result.message||'Email service did not accept the PDF.');
+    message(who+' PDF emailed to nad@nadnet.ch.');
+  }catch(e){message('Could not confirm email delivery. Download the PDF to keep a copy. '+(e.message||'Please try again.'));}
+  finally{b.disabled=false;b.textContent='Done — email PDF';}
+};
+render();
 </script></body></html>
