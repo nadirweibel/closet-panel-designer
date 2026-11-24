@@ -22,6 +22,7 @@ button:focus-visible,select:focus-visible { outline:3px solid #2159a1; outline-o
 .room-stage svg { display:block; width:100%; height:auto; pointer-events:none; }
 .panel-caption { visibility:hidden; }
 .room-slot { position:absolute; display:grid; place-items:center; min-height:0; margin:0; padding:0; border:1px solid transparent; border-radius:0; background:transparent; font-size:.875rem; user-select:none; }
+.room-slot.empty { color:#fff; }
 .room-slot.selected { outline:3px solid #2159a1; outline-offset:-2px; }
 .room-slot:hover { border-color:#2159a1; }
 .actions { margin-top:16px; }
@@ -70,8 +71,8 @@ function roomShapes(who) {
     rect(x,150,146,320,'#ddd','#777');
     for(let row=0;row<4;row++){
       const value=data[who][d*4+row], y=156+row*78;
-      rect(x+5,y,136,74,value==='mirror'?'#c9d8df':value==='white'?'#fff':'#f4f4f4','#aaa');shapes[shapes.length-1].slotIndex=d*4+row;
-      text(x+40,y+43,value==='mirror'?'Mirror':value==='white'?'White':'Empty',16);shapes[shapes.length-1].slotLabel=true;
+      rect(x+5,y,136,74,value==='mirror'?'#c9d8df':value==='white'?'#fff':'#34454f','#aaa');shapes[shapes.length-1].slotIndex=d*4+row;
+      text(x+40,y+43,value==='mirror'?'Mirror':value==='white'?'White':'Empty',16);shapes[shapes.length-1].slotLabel=true;shapes[shapes.length-1].color=value?'#222':'#fff';
       if(value==='mirror')line(x+12,y+62,x+34,y+12);
     }
     text(x+45,552,d%2?'Right':'Left',14);
@@ -90,13 +91,13 @@ function renderRoom(){
     const e=document.createElementNS(svgNS,shape.kind==='poly'?'polygon':shape.kind);
     if(shape.kind==='text'){
       e.setAttribute('x',shape.x);e.setAttribute('y',shape.y);e.setAttribute('font-size',shape.size);e.setAttribute('font-family','Arial, sans-serif');e.textContent=shape.value;
-      if(shape.slotLabel)e.classList.add('panel-caption');
+      if(shape.color)e.setAttribute('fill',shape.color);if(shape.slotLabel)e.classList.add('panel-caption');
     }else if(shape.kind==='rect'){
       for(const [k,v] of Object.entries({x:shape.x,y:shape.y,width:shape.w,height:shape.h,fill:shape.fill,stroke:shape.stroke}))e.setAttribute(k,v);
       if(shape.slotIndex!==undefined){
         const i=shape.slotIndex,value=data[person][i],d=Math.floor(i/4),b=document.createElement('button');
-        b.type='button';b.className='room-slot'+(selected?.kind==='slot'&&selected.index===i?' selected':'');b.dataset.slotIndex=i;
-        b.textContent=value==='mirror'?'Mirror':value==='white'?'White':'Slot '+(i%4+1);
+        b.type='button';b.className='room-slot'+(!value?' empty':'')+(selected?.kind==='slot'&&selected.index===i?' selected':'');b.dataset.slotIndex=i;
+        b.textContent=value==='mirror'?'Mirror':value==='white'?'White':'Empty';
         b.setAttribute('aria-label',`Closet ${Math.floor(d/2)+1} — ${d%2?'Right':'Left'} door, slot ${i%4+1}: ${value||'empty'}`);
         b.setAttribute('aria-pressed',String(selected?.kind==='slot'&&selected.index===i));
         b.style.left=shape.x/10+'%';b.style.top=shape.y/615*100+'%';b.style.width=shape.w/10+'%';b.style.height=shape.h/615*100+'%';
@@ -126,7 +127,7 @@ function pdfBlob(who){
   const y=v=>615-v, esc=t=>t.replace(/([\\()])/g,'\\$1');
   for(const s of roomShapes(who)){
     commands.push('0.7 w');
-    if(s.kind==='text')commands.push(`0.12 0.12 0.12 rg BT /F1 ${s.size} Tf ${s.x} ${y(s.y)} Td (${esc(s.value)}) Tj ET`);
+    if(s.kind==='text')commands.push(`${rgb(s.color||'#222')} rg BT /F1 ${s.size} Tf ${s.x} ${y(s.y)} Td (${esc(s.value)}) Tj ET`);
     if(s.kind==='rect')commands.push(`${rgb(s.fill)} rg ${rgb(s.stroke)} RG ${s.x} ${y(s.y+s.h)} ${s.w} ${s.h} re B`);
     if(s.kind==='line')commands.push(`0.45 0.5 0.54 RG ${s.x1} ${y(s.y1)} m ${s.x2} ${y(s.y2)} l S`);
     if(s.kind==='poly')commands.push(`${rgb(s.fill)} rg 0.45 0.45 0.45 RG `+s.points.map((p,i)=>`${p[0]} ${y(p[1])} ${i?'l':'m'}`).join(' ')+' h B');
