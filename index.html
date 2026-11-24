@@ -129,7 +129,7 @@ function pdfBlob(who){
 }
 function downloadPDF(who){const url=URL.createObjectURL(pdfBlob(who)),a=document.createElement('a');a.href=url;a.download=who+'_closet_layout.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
 $('pdf').onclick=()=>downloadPDF(person);
-const EMAIL_ENDPOINT = ''; // Set after the approved sender is deployed.
+const EMAIL_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxvLGJBUal884mbVUmg6MBSNo8wYG24TdWMFPT_r1UwE5ONYFKv9e7PUKUw2Xtmu_w/exec';
 if(!EMAIL_ENDPOINT){$('email').disabled=true;$('email').textContent='Email setup pending';}
 $('email').onclick=async()=>{
   const who=person, c=counts();
